@@ -1,4 +1,4 @@
-from flask.signals import Namespace
+from quart.signals import Namespace
 
 _signals = Namespace()
 

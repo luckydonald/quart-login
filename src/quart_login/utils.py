@@ -4,12 +4,14 @@ from hashlib import sha512
 from urllib.parse import urlparse
 from urllib.parse import urlunparse
 
-from flask import current_app
-from flask import g
-from flask import has_request_context
-from flask import request
-from flask import session
-from flask import url_for
+from quart import current_app
+from quart import g
+from quart import has_request_context
+from quart import request
+from quart import session
+from quart import url_for
+from quart import has_websocket_context
+from quart import websocket
 from werkzeug.local import LocalProxy
 from werkzeug.urls import url_decode
 from werkzeug.urls import url_encode
@@ -23,6 +25,14 @@ from .signals import user_login_confirmed
 #: A proxy for the current user. If no user is logged in, this will be an
 #: anonymous user
 current_user = LocalProxy(lambda: _get_user())
+
+
+def get_context():
+    if has_request_context():
+        return request
+    elif has_websocket_context():
+        return websocket
+    raise RuntimeError("Attempt to access request or websocket outside of a relevant context")
 
 
 def encode_cookie(payload, key=None):
@@ -102,7 +112,7 @@ def login_url(login_view, next_url=None, next_field="next"):
     Creates a URL for redirecting to a login page. If only `login_view` is
     provided, this will just return the URL for it. If `next_url` is provided,
     however, this will append a ``next=URL`` parameter to the query string
-    so that the login view can redirect back to that URL. Flask-Login's default
+    so that the login view can redirect back to that URL. Quart-Login's default
     unauthorized handler uses this function when redirecting to your login url.
     To force the host name used, set `FORCE_HOST_FOR_REDIRECTS` to a host. This
     prevents from redirecting to external sites if request headers Host or
@@ -143,11 +153,12 @@ def login_remembered():
     """
     This returns ``True`` if the current login is remembered across sessions.
     """
+    context = get_context()
     config = current_app.config
     cookie_name = config.get("REMEMBER_COOKIE_NAME", COOKIE_NAME)
-    has_cookie = cookie_name in request.cookies and session.get("_remember") != "clear"
+    has_cookie = cookie_name in context.cookies and session.get("_remember") != "clear"
     if has_cookie:
-        cookie = request.cookies[cookie_name]
+        cookie = context.cookies[cookie_name]
         user_id = decode_cookie(cookie)
         return user_id is not None
     return False
@@ -221,8 +232,10 @@ def logout_user():
     if "_id" in session:
         session.pop("_id")
 
+    context = get_context()
     cookie_name = current_app.config.get("REMEMBER_COOKIE_NAME", COOKIE_NAME)
-    if cookie_name in request.cookies:
+
+    if cookie_name in context.cookies:
         session["_remember"] = "clear"
         if "_remember_seconds" in session:
             session.pop("_remember_seconds")
@@ -279,7 +292,8 @@ def login_required(func):
 
     @wraps(func)
     def decorated_view(*args, **kwargs):
-        if request.method in EXEMPT_METHODS or current_app.config.get("LOGIN_DISABLED"):
+        context = get_context()
+        if context.method in EXEMPT_METHODS or current_app.config.get("LOGIN_DISABLED"):
             pass
         elif not current_user.is_authenticated:
             return current_app.login_manager.unauthorized()
@@ -287,6 +301,7 @@ def login_required(func):
         # flask 1.x compatibility
         # current_app.ensure_sync is only available in Flask >= 2.0
         if callable(getattr(current_app, "ensure_sync", None)):
+            # todo: is ensure_sync needed with quart bringing async support?
             return current_app.ensure_sync(func)(*args, **kwargs)
         return func(*args, **kwargs)
 
@@ -320,7 +335,8 @@ def fresh_login_required(func):
 
     @wraps(func)
     def decorated_view(*args, **kwargs):
-        if request.method in EXEMPT_METHODS or current_app.config.get("LOGIN_DISABLED"):
+        context = get_context()
+        if context.method in EXEMPT_METHODS or current_app.config.get("LOGIN_DISABLED"):
             pass
         elif not current_user.is_authenticated:
             return current_app.login_manager.unauthorized()
@@ -367,6 +383,7 @@ def set_login_view(login_view, blueprint=None):
 
 
 def _get_user():
+    # TODO: `has_request_context`, `has_websocket_context`
     if has_request_context():
         if "_login_user" not in g:
             current_app.login_manager._load_user()
@@ -383,7 +400,8 @@ def _cookie_digest(payload, key=None):
 
 
 def _get_remote_addr():
-    address = request.headers.get("X-Forwarded-For", request.remote_addr)
+    context = get_context()
+    address = context.headers.get("X-Forwarded-For", context.remote_addr)
     if address is not None:
         # An 'X-Forwarded-For' header includes a comma separated list of the
         # addresses, the first address being the actual remote address.
@@ -392,7 +410,8 @@ def _get_remote_addr():
 
 
 def _create_identifier():
-    user_agent = request.headers.get("User-Agent")
+    context = get_context()
+    user_agent = context.headers.get("User-Agent")
     if user_agent is not None:
         user_agent = user_agent.encode("utf-8")
     base = f"{_get_remote_addr()}|{user_agent}"

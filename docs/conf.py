@@ -1,5 +1,5 @@
 #
-# Flask-Login documentation build configuration file, created by
+# Quart-Login documentation build configuration file, created by
 # sphinx-quickstart on Tue Mar 15 18:40:10 2011.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -41,13 +41,13 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = "Flask-Login"
-copyright = "2011, Matthew Frazier"
+project = "Quart-Login"
+copyright = "2022, Matteo Porta"
 
 about = {}
 
 with open(
-    os.path.join(os.path.dirname(__file__), "..", "src", "flask_login", "__about__.py")
+    os.path.join(os.path.dirname(__file__), "..", "src", "quart_login", "__about__.py")
 ) as f:
     exec(f.read(), about)
 
@@ -104,7 +104,7 @@ html_theme = "flask_small"
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-html_theme_options = dict(github_fork="maxcountryman/flask-login", index_logo=False)
+html_theme_options = dict(github_fork="0000matteo0000/quart-login", index_logo=False)
 
 # Add any paths that contain custom themes here, relative to this directory.
 html_theme_path = ["_themes"]
@@ -172,7 +172,7 @@ html_theme_path = ["_themes"]
 # html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "Flask-Logindoc"
+htmlhelp_basename = "Quart-Logindoc"
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -188,9 +188,9 @@ htmlhelp_basename = "Flask-Logindoc"
 latex_documents = [
     (
         "index",
-        "Flask-Login.tex",
-        "Flask-Login Documentation",
-        "Matthew Frazier",
+        "Quart-Login.tex",
+        "Quart-Login Documentation",
+        "Matteo Porta",
         "manual",
     ),
 ]
@@ -224,7 +224,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ("index", "flask-login", "Flask-Login Documentation", ["Matthew Frazier"], 1)
+    ("index", "quart-login", "Quart-Login Documentation", ["Matteo Porta"], 1)
 ]
 
 

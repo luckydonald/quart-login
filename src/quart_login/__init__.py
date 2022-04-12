@@ -11,6 +11,7 @@ from .config import REFRESH_MESSAGE_CATEGORY
 from .login_manager import LoginManager
 from .mixins import AnonymousUserMixin
 from .mixins import UserMixin
+from .proxy_fix import ProxyFixMiddleware
 from .signals import session_protected
 from .signals import user_accessed
 from .signals import user_loaded_from_cookie
@@ -20,7 +21,7 @@ from .signals import user_logged_out
 from .signals import user_login_confirmed
 from .signals import user_needs_refresh
 from .signals import user_unauthorized
-from .test_client import FlaskLoginClient
+from .test_client import QuartLoginClient
 from .utils import confirm_login
 from .utils import current_user
 from .utils import decode_cookie
@@ -58,7 +59,8 @@ __all__ = [
     "user_login_confirmed",
     "user_needs_refresh",
     "user_unauthorized",
-    "FlaskLoginClient",
+    "ProxyFixMiddleware",
+    "QuartLoginClient",
     "confirm_login",
     "current_user",
     "decode_cookie",

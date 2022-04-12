@@ -1,0 +1,10 @@
+__title__ = "Quart-Login"
+__description__ = "User session management for Quart"
+__url__ = "https://github.com/0000matteo0000/quart-login"
+__version_info__ = ("0", "6", "1", "dev0")
+__version__ = ".".join(__version_info__)
+__author__ = "Matteo Porta"
+__author_email__ = "leafstormrush@gmail.com"
+__maintainer__ = "Matteo Porta"
+__license__ = "MIT"
+__copyright__ = "(c) 2022 by Matteo Porta"

@@ -1,6 +1,6 @@
 class UserMixin:
     """
-    This provides default implementations for the methods that Flask-Login
+    This provides default implementations for the methods that Quart-Login
     expects user objects to have.
     """
 

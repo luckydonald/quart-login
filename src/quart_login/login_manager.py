@@ -1,13 +1,16 @@
 from datetime import datetime
 from datetime import timedelta
 
-from flask import abort
-from flask import current_app
-from flask import flash
-from flask import g
-from flask import redirect
-from flask import request
-from flask import session
+from quart import abort
+from quart import current_app
+from quart import flash
+from quart import g
+from quart import redirect
+from quart import request
+from quart import session
+from quart import has_request_context
+from quart import has_websocket_context
+
 
 from .config import COOKIE_DURATION
 from .config import COOKIE_HTTPONLY
@@ -28,6 +31,7 @@ from .signals import user_loaded_from_cookie
 from .signals import user_loaded_from_request
 from .signals import user_needs_refresh
 from .signals import user_unauthorized
+from .utils import get_context
 from .utils import _create_identifier
 from .utils import _user_context_processor
 from .utils import decode_cookie
@@ -107,8 +111,8 @@ class LoginManager:
         Configures an application. This registers an `after_request` call, and
         attaches this `LoginManager` to it as `app.login_manager`.
 
-        :param app: The :class:`flask.Flask` object to configure.
-        :type app: :class:`flask.Flask`
+        :param app: The :class:`quart.Quart` object to configure.
+        :type app: :class:`quart.Quart`
         :param add_context_processor: Whether to add a context processor to
             the app that adds a `current_user` variable to the template.
             Defaults to ``True``.
@@ -150,8 +154,10 @@ class LoginManager:
         if self.unauthorized_callback:
             return self.unauthorized_callback()
 
-        if request.blueprint in self.blueprint_login_views:
-            login_view = self.blueprint_login_views[request.blueprint]
+        context = get_context()
+
+        if context.blueprint in self.blueprint_login_views:
+            login_view = self.blueprint_login_views[context.blueprint]
         else:
             login_view = self.login_view
 
@@ -171,10 +177,10 @@ class LoginManager:
         if config.get("USE_SESSION_FOR_NEXT", USE_SESSION_FOR_NEXT):
             login_url = expand_login_view(login_view)
             session["_id"] = self._session_identifier_generator()
-            session["next"] = make_next_param(login_url, request.url)
+            session["next"] = make_next_param(login_url, context.url)
             redirect_url = make_login_url(login_view)
         else:
-            redirect_url = make_login_url(login_view, next_url=request.url)
+            redirect_url = make_login_url(login_view, next_url=context.url)
 
         return redirect(redirect_url)
 
@@ -197,8 +203,8 @@ class LoginManager:
 
     def request_loader(self, callback):
         """
-        This sets the callback for loading a user from a Flask request.
-        The function you set should take Flask request object and
+        This sets the callback for loading a user from a Quart request.
+        The function you set should take Quart request object and
         return a user object, or `None` if the user does not exist.
 
         :param callback: The callback for retrieving a user object.
@@ -278,21 +284,27 @@ class LoginManager:
                     category=self.needs_refresh_message_category,
                 )
 
+        context = get_context()
+
         config = current_app.config
         if config.get("USE_SESSION_FOR_NEXT", USE_SESSION_FOR_NEXT):
             login_url = expand_login_view(self.refresh_view)
             session["_id"] = self._session_identifier_generator()
-            session["next"] = make_next_param(login_url, request.url)
+            session["next"] = make_next_param(login_url, context.url)
             redirect_url = make_login_url(self.refresh_view)
         else:
             login_url = self.refresh_view
-            redirect_url = make_login_url(login_url, next_url=request.url)
+            redirect_url = make_login_url(login_url, next_url=context.url)
 
         return redirect(redirect_url)
 
     def _update_request_context_with_user(self, user=None):
         """Store the given user as ctx.user."""
 
+        # TODO: investigate if the websocket has a different stack,
+        # TODO (cont'd): the original flask-to-quart rewrite suggested that.
+        # TODO (cont'd): it checked `has_request_context` and `has_websocket_context`,
+        # TODO (cont'd): applying itself to  the stack of that.
         if user is None:
             user = self.anonymous_user()
 
@@ -316,7 +328,7 @@ class LoginManager:
 
         user = None
 
-        # Load user from Flask Session
+        # Load user from Quart Session
         user_id = session.get("_user_id")
         if user_id is not None and self._user_callback is not None:
             user = self._user_callback(user_id)
@@ -325,14 +337,21 @@ class LoginManager:
         if user is None:
             config = current_app.config
             cookie_name = config.get("REMEMBER_COOKIE_NAME", COOKIE_NAME)
+            header_name = config.get("AUTH_HEADER_NAME", AUTH_HEADER_NAME)
+
+            context = get_context()
+
             has_cookie = (
-                cookie_name in request.cookies and session.get("_remember") != "clear"
+                cookie_name in context.cookies and session.get("_remember") != "clear"
             )
             if has_cookie:
-                cookie = request.cookies[cookie_name]
+                cookie = context.cookies[cookie_name]
                 user = self._load_user_from_remember_cookie(cookie)
             elif self._request_callback:
-                user = self._load_user_from_request(request)
+                user = self._load_user_from_request(context)
+            elif header_name in context.headers:
+                header = context.headers[header_name]
+                user = self._load_user_from_header(header)
 
         return self._update_request_context_with_user(user)
 

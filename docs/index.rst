@@ -1,15 +1,15 @@
 ===========
-Flask-Login
+Quart-Login
 ===========
-.. currentmodule:: flask_login
+.. currentmodule:: quart_login
 
-Flask-Login provides user session management for Flask. It handles the common
+Quart-Login provides user session management for Flask. It handles the common
 tasks of logging in, logging out, and remembering your users' sessions over
 extended periods of time.
 
 It will:
 
-- Store the active user's ID in the `Flask Session`_, and let you easily log
+- Store the active user's ID in the `Quart Session`_, and let you easily log
   them in and out.
 - Let you restrict views to logged-in (or logged-out) users. (`login_required`)
 - Handle the normally-tricky "remember me" functionality.
@@ -33,19 +33,19 @@ Installation
 ============
 Install the extension with pip::
 
-    $ pip install flask-login
+    $ pip install git+https://github.com/0000matteo0000/quart-login.git
 
 
 Configuring your Application
 ============================
-The most important part of an application that uses Flask-Login is the
+The most important part of an application that uses Quart-Login is the
 `LoginManager` class. You should create one for your application somewhere in
 your code, like this::
 
-    from flask_login import LoginManager
+    from quart_login import LoginManager
     login_manager = LoginManager()
 
-The login manager contains the code that lets your application and Flask-Login
+The login manager contains the code that lets your application and Quart-Login
 work together, such as how to load a user from an ID, where to send users when
 they need to log in, and the like.
 
@@ -55,7 +55,7 @@ login with::
     login_manager.init_app(app)
 
 
-By default, Flask-Login uses sessions for authentication. This means you must
+By default, Quart-Login uses sessions for authentication. This means you must
 set the secret key on your application, otherwise Flask will give you
 an error message telling you to do so. See the `Flask documentation on sessions`_
 to see how to set a secret key.
@@ -133,17 +133,17 @@ function.
             # user should be an instance of your `User` class
             login_user(user)
 
-            flask.flash('Logged in successfully.')
+            quart.flash('Logged in successfully.')
 
-            next = flask.request.args.get('next')
+            next = quart.request.args.get('next')
             # url_has_allowed_host_and_scheme should check if the url is safe
             # for redirects, meaning it matches the request host.
             # See Django's url_has_allowed_host_and_scheme for an example.
             if not url_has_allowed_host_and_scheme(next, request.host):
-                return flask.abort(400)
+                return quart.abort(400)
 
-            return flask.redirect(next or flask.url_for('index'))
-        return flask.render_template('login.html', form=form)
+            return quart.redirect(next or quart.url_for('index'))
+        return quart.render_template('login.html', form=form)
 
 *Warning:* You MUST validate the value of the `next` parameter. If you do not,
 your application will be vulnerable to open redirects. For an example
@@ -179,7 +179,7 @@ They will be logged out, and any cookies for their session will be cleaned up.
 Customizing the Login Process
 =============================
 By default, when a user attempts to access a `login_required` view without
-being logged in, Flask-Login will flash a message and redirect them to the
+being logged in, Quart-Login will flash a message and redirect them to the
 log in view. (If the login view is not set, it will abort with a 401 error.)
 
 The name of the log in view can be set as `LoginManager.login_view`.
@@ -212,7 +212,7 @@ If you would like to customize the process further, decorate a function with
 For example: You are using Flask Login with Flask Restful.
 In your API (blueprint named as api) you don't wanna redirect to login page but return Unauthorized status code .::
 
-    from flask import redirect, url_for, request
+    from quart import redirect, url_for, request
     from http import HTTPStatus
     @login_manager.unauthorized_handler
     def unauthorized():
@@ -283,9 +283,9 @@ being logged out when they close their browser. This does **NOT** mean
 remembering or pre-filling the user's username or password in a login form
 after the user has logged out.
 
-"Remember Me" functionality can be tricky to implement. However, Flask-Login
+"Remember Me" functionality can be tricky to implement. However, Quart-Login
 makes it nearly transparent - just pass ``remember=True`` to the `login_user`
-call. A cookie will be saved on the user's computer, and then Flask-Login
+call. A cookie will be saved on the user's computer, and then Quart-Login
 will automatically restore the user ID from that cookie if it is not in the
 session. The amount of time before the cookie expires can be set with the
 `REMEMBER_COOKIE_DURATION` configuration or it can be passed to `login_user`.
@@ -389,7 +389,7 @@ The details of the cookie can be customized in the application settings.
 Session Protection
 ==================
 While the features above help secure your "Remember Me" token from cookie
-thieves, the session cookie is still vulnerable. Flask-Login includes session
+thieves, the session cookie is still vulnerable. Quart-Login includes session
 protection to help prevent your users' sessions from being stolen.
 
 You can configure session protection on the `LoginManager`, and in the app's
@@ -430,9 +430,9 @@ When authenticating to APIs, you might want to disable setting the Flask
 Session cookie. To do this, use a custom session interface that skips saving
 the session depending on a flag you set on the request. For example::
 
-    from flask import g
-    from flask.sessions import SecureCookieSessionInterface
-    from flask_login import user_loaded_from_request
+    from quart import g
+    from quart.sessions import SecureCookieSessionInterface
+    from quart_login import user_loaded_from_request
 
     @user_loaded_from_request.connect
     def user_loaded_from_request(app, user=None):
@@ -458,17 +458,17 @@ using your `~LoginManager.request_loader`.
 
 Automated Testing
 =================
-To make it easier for you to write automated tests, Flask-Login provides a
+To make it easier for you to write automated tests, Quart-Login provides a
 simple, custom test client class that will set the user's login cookie for you:
 `~FlaskLoginClient`. To use this custom test client class, assign it to the
-:attr:`test_client_class <flask.Flask.test_client_class>` attribute
+:attr:`test_client_class <quart.Flask.test_client_class>` attribute
 on your application object, like this::
 
-    from flask_login import FlaskLoginClient
+    from quart_login import FlaskLoginClient
 
     app.test_client_class = FlaskLoginClient
 
-Next, use the :meth:`app.test_client() <flask.Flask.test_client>` method
+Next, use the :meth:`app.test_client() <quart.Flask.test_client>` method
 to make a test client, as you normally do. However, now you can pass a
 user object to this method, and your client will be automatically
 logged in with this user!
@@ -506,13 +506,13 @@ value will be sent to ``flash`` instead.
 
 API Documentation
 =================
-This documentation is automatically generated from Flask-Login's source code.
+This documentation is automatically generated from Quart-Login's source code.
 
 
 Configuring Login
 -----------------
 
-.. module:: flask_login
+.. module:: quart_login
 
 .. autoclass:: LoginManager
 
@@ -645,7 +645,7 @@ signals in your code.
    marked non-fresh or deleted. It receives no additional arguments besides
    the app.
 
-.. _source code: https://github.com/maxcountryman/flask-login/tree/main/src/flask_login
+.. _source code: https://github.com/0000matteo0000/quart-login/tree/main/src/quart_login
 .. _Flask documentation on signals: https://flask.palletsprojects.com/en/latest/signals/
 .. _this Flask Snippet: https://web.archive.org/web/20120517003641/http://flask.pocoo.org/snippets/62/
 .. _Flask Session: https://flask.palletsprojects.com/en/latest/api/#sessions

@@ -1,5 +1,8 @@
-Flask-Login Changelog
+Quart-Login Changelog
 =====================
+Quart Port
+----------
+- ported to quart
 
 Version 0.7.0
 -------------
