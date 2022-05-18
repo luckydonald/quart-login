@@ -12,7 +12,6 @@ from quart import has_request_context
 from quart import has_websocket_context
 
 
-from .config import AUTH_HEADER_NAME
 from .config import COOKIE_DURATION
 from .config import COOKIE_HTTPONLY
 from .config import COOKIE_NAME
@@ -342,7 +341,6 @@ class LoginManager:
         if user is None:
             config = current_app.config
             cookie_name = config.get("REMEMBER_COOKIE_NAME", COOKIE_NAME)
-            header_name = config.get("AUTH_HEADER_NAME", AUTH_HEADER_NAME)
 
             context = get_context()
 
@@ -354,9 +352,6 @@ class LoginManager:
                 user = self._load_user_from_remember_cookie(cookie)
             elif self._request_callback:
                 user = self._load_user_from_request(context)
-            elif header_name in context.headers:
-                header = context.headers[header_name]
-                user = self._load_user_from_header(header)
 
         return self._update_request_context_with_user(user)
 
