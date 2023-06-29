@@ -291,15 +291,13 @@ def login_required(func):
     """
 
     @wraps(func)
-    def decorated_view(*args, **kwargs):
+    async def decorated_view(*args, **kwargs):
         context = get_context()
         if context.method in EXEMPT_METHODS or current_app.config.get("LOGIN_DISABLED"):
             pass
         elif not current_user.is_authenticated:
-            return current_app.login_manager.unauthorized()
-
-        return func(*args, **kwargs)
-
+            return await current_app.ensure_async(current_app.login_manager.unauthorized)()
+        return await current_app.ensure_async(func)(*args, **kwargs)
     return decorated_view
 
 
@@ -329,16 +327,15 @@ def fresh_login_required(func):
     """
 
     @wraps(func)
-    def decorated_view(*args, **kwargs):
+    async def decorated_view(*args, **kwargs):
         context = get_context()
         if context.method in EXEMPT_METHODS or current_app.config.get("LOGIN_DISABLED"):
             pass
         elif not current_user.is_authenticated:
-            return current_app.login_manager.unauthorized()
+            return await current_app.ensure_async(current_app.login_manager.unauthorized)()
         elif not login_fresh():
-            return current_app.login_manager.needs_refresh()
-        return func(*args, **kwargs)
-
+            return await current_app.ensure_async(current_app.login_manager.needs_refresh)()
+        return await current_app.ensure_async(func)(*args, **kwargs)
     return decorated_view
 
 
