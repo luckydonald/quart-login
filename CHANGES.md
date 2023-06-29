@@ -3,6 +3,8 @@ Quart-Login Changelog
 Quart Port
 ----------
 - ported to quart
+  - Thanks @0000matteo0000 for the inital work.
+  - Thanks @luckydonald for completing it.
 
 Version 0.7.0
 -------------
