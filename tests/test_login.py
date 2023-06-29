@@ -243,10 +243,10 @@ class MethodViewLoginTestCase(unittest.IsolatedAsyncioTestCase):
                 fresh_login_required,
             ]
 
-            def options(self):
+            async def options(self):
                 return ""
 
-            def get(self):
+            async def get(self):
                 return ""
 
         self.app.add_url_rule("/secret", view_func=SecretEndpoint.as_view("secret"))
@@ -1289,7 +1289,7 @@ class LoginTestCase(unittest.IsolatedAsyncioTestCase):
             result2 = await c.get("/protected")
             self.assertIn("Access Granted", (await result2.data).decode("utf-8"))
 
-    @unittest.skipIf(not hasattr(Quart, "ensure_sync"), "Quart version before async")
+    @unittest.skipIf(not hasattr(Quart, "ensure_async"), "Quart version before async")
     @pytest.mark.asyncio
     async def test_login_required_decorator_with_async(self):
         import asyncio
