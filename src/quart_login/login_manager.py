@@ -301,10 +301,14 @@ class LoginManager:
     def _update_request_context_with_user(self, user=None):
         """Store the given user as ctx.user."""
 
-        # TODO: investigate if the websocket has a different stack,
-        # TODO (cont'd): the original flask-to-quart rewrite suggested that.
-        # TODO (cont'd): it checked `has_request_context` and `has_websocket_context`,
-        # TODO (cont'd): applying itself to  the stack of that.
+        # TODO: investigate if we should store it on the request stack,
+        #       the original flask-to-quart rewrite suggested that.
+        #       The rewrite then checked based on  `has_request_context()` and `has_websocket_context()`,
+        #       which stack is active and stored itself on it.
+        #       However, the upstream flask one changed that,
+        #       in commit 359fb004f153635952a7d32ded1bbd6d74ec2561: "store user on g instead of app_ctx_stack.top",
+        #       (Link: https://github.com/maxcountryman/flask-login/commit/359fb004f153635952a7d32ded1bbd6d74ec2561 )
+        #       which is what we're now using below, hoping that it will work with websockets as well.
         if user is None:
             user = self.anonymous_user()
 

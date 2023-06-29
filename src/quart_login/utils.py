@@ -374,7 +374,14 @@ def set_login_view(login_view, blueprint=None):
 
 
 def _get_user():
-    # TODO: `has_request_context`, `has_websocket_context`
+    # TODO: investigate if we should store it on the request stack,
+    #       the original flask-to-quart rewrite suggested that.
+    #       The rewrite then checked based on  `has_request_context()` and `has_websocket_context()`,
+    #       which stack is active and stored itself on it.
+    #       However, the upstream flask one changed that,
+    #       in commit 359fb004f153635952a7d32ded1bbd6d74ec2561: "store user on g instead of app_ctx_stack.top",
+    #       (Link: https://github.com/maxcountryman/flask-login/commit/359fb004f153635952a7d32ded1bbd6d74ec2561 )
+    #       which is what we're now using below, hoping that it will work with websockets as well.
     if has_request_context():
         if "_login_user" not in g:
             current_app.login_manager._load_user()
