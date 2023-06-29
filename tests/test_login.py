@@ -154,10 +154,21 @@ class AboutTestCase(unittest.TestCase):
         self.assertTrue(__copyright__ is not None)
 
 
+def enable_debug(app):
+    # noinspection PyUnreachableCode
+    if False:
+        return
+    app.debug = True
+    app.testing = True
+    app.config["PROPAGATE_EXCEPTIONS"] = True
+    app.config["TRAP_HTTP_EXCEPTIONS"] = True
+
+
 class StaticTestCase(unittest.IsolatedAsyncioTestCase):
     @pytest.mark.asyncio
     async def test_static_loads_anonymous(self):
         app = Quart(__name__)
+        enable_debug(app)
         app.static_url_path = "/static"
         app.secret_key = "this is a temp key"
         lm = LoginManager()
@@ -174,6 +185,7 @@ class StaticTestCase(unittest.IsolatedAsyncioTestCase):
     @pytest.mark.asyncio
     async def test_static_loads_without_accessing_session(self):
         app = Quart(__name__)
+        enable_debug(app)
         app.static_url_path = "/static"
         app.secret_key = "this is a temp key"
         lm = LoginManager()
@@ -194,6 +206,7 @@ class InitializationTestCase(unittest.IsolatedAsyncioTestCase):
 
     def setUp(self):
         self.app = Quart(__name__)
+        enable_debug(self.app)
         self.app.config["SECRET_KEY"] = "1234"
 
     def test_init_app(self):
@@ -229,6 +242,7 @@ class InitializationTestCase(unittest.IsolatedAsyncioTestCase):
 class MethodViewLoginTestCase(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.app = Quart(__name__)
+        enable_debug(self.app)
         self.login_manager = LoginManager()
         self.login_manager.init_app(self.app)
         self.app.config["LOGIN_DISABLED"] = False
@@ -259,6 +273,7 @@ class LoginTestCase(unittest.IsolatedAsyncioTestCase):
 
     def setUp(self):
         self.app = Quart(__name__)
+        enable_debug(self.app)
         self.app.config["SECRET_KEY"] = "deterministic"
         self.app.config["SESSION_PROTECTION"] = None
         self.remember_cookie_name = "remember"
@@ -1366,6 +1381,7 @@ class LoginViaRequestTestCase(unittest.IsolatedAsyncioTestCase):
 
     def setUp(self):
         self.app = Quart(__name__)
+        enable_debug(self.app)
         self.app.config["SECRET_KEY"] = "deterministic"
         self.app.config["SESSION_PROTECTION"] = None
         self.remember_cookie_name = "remember"
@@ -1483,6 +1499,7 @@ class LoginViaRequestTestCase(unittest.IsolatedAsyncioTestCase):
 class TestLoginUrlGeneration(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.app = Quart(__name__)
+        enable_debug(self.app)
         self.login_manager = LoginManager()
         self.login_manager.init_app(self.app)
 
@@ -1543,6 +1560,7 @@ class CookieEncodingTestCase(unittest.IsolatedAsyncioTestCase):
     @pytest.mark.asyncio
     async def test_cookie_encoding(self):
         app = Quart(__name__)
+        enable_debug(app)
         app.config["SECRET_KEY"] = "deterministic"
 
         # COOKIE = u'1|7d276051c1eec578ed86f6b8478f7f7d803a7970'
@@ -1562,6 +1580,7 @@ class CookieEncodingTestCase(unittest.IsolatedAsyncioTestCase):
     @pytest.mark.asyncio
     async def test_cookie_encoding_with_key(self):
         app = Quart(__name__)
+        enable_debug(app)
         app.config["SECRET_KEY"] = "not-used"
         key = "deterministic"
 
@@ -1583,6 +1602,7 @@ class CookieEncodingTestCase(unittest.IsolatedAsyncioTestCase):
 class SecretKeyTestCase(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.app = Quart(__name__)
+        enable_debug(self.app)
 
     @pytest.mark.asyncio
     async def test_bytes(self):
@@ -1661,6 +1681,7 @@ class AnonymousUserTestCase(unittest.TestCase):
 class UnicodeCookieUserIDTestCase(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.app = Quart(__name__)
+        enable_debug(self.app)
         self.app.config["SECRET_KEY"] = "deterministic"
         self.app.config["SESSION_PROTECTION"] = None
         self.remember_cookie_name = "remember"
@@ -1732,6 +1753,7 @@ class UnicodeCookieUserIDTestCase(unittest.IsolatedAsyncioTestCase):
 class StrictHostForRedirectsTestCase(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.app = Quart(__name__)
+        enable_debug(self.app)
         self.app.config["SECRET_KEY"] = "deterministic"
         self.app.config["SESSION_PROTECTION"] = None
         self.remember_cookie_name = "remember"
@@ -1831,6 +1853,7 @@ class StrictHostForRedirectsTestCase(unittest.IsolatedAsyncioTestCase):
 class CustomTestClientTestCase(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.app = Quart(__name__)
+        enable_debug(self.app)
         self.app.config["SECRET_KEY"] = "deterministic"
         self.app.config["SESSION_PROTECTION"] = None
         self.remember_cookie_name = "remember"
