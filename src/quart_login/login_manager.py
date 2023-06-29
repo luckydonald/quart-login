@@ -12,6 +12,7 @@ from quart import has_request_context
 from quart import has_websocket_context
 
 
+from .config import AUTH_HEADER_NAME
 from .config import COOKIE_DURATION
 from .config import COOKIE_HTTPONLY
 from .config import COOKIE_NAME
