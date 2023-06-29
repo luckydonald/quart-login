@@ -1,7 +1,7 @@
 __title__ = "Quart-Login"
 __description__ = "User session management for Quart"
 __url__ = "https://github.com/luckydonald/quart-login"
-__version_info__ = ("0", "6", "1", "dev0")
+__version_info__ = ("0", "7", "0", "pre1")
 __version__ = ".".join(__version_info__)
 __author__ = "Luckydonald"
 __author_email__ = "quart-login+code@luckydonald.de"
