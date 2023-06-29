@@ -33,7 +33,7 @@ Installation
 ============
 Install the extension with pip::
 
-    $ pip install git+https://github.com/0000matteo0000/quart-login.git
+    $ pip install git+https://github.com/luckydonald/quart-login.git
 
 
 Configuring your Application
@@ -645,7 +645,7 @@ signals in your code.
    marked non-fresh or deleted. It receives no additional arguments besides
    the app.
 
-.. _source code: https://github.com/0000matteo0000/quart-login/tree/main/src/quart_login
+.. _source code: https://github.com/luckydonald/quart-login/tree/main/src/quart_login
 .. _Flask documentation on signals: https://flask.palletsprojects.com/en/latest/signals/
 .. _this Flask Snippet: https://web.archive.org/web/20120517003641/http://flask.pocoo.org/snippets/62/
 .. _Flask Session: https://flask.palletsprojects.com/en/latest/api/#sessions

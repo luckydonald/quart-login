@@ -18,7 +18,7 @@ their ID.
 Install the extension with pip:
 
 ```sh
-$ pip install git+https://github.com/0000matteo0000/quart-login.git
+$ pip install git+https://github.com/luckydonald/quart-login.git
 ```
 
 ## Usage
@@ -139,7 +139,7 @@ def unauthorized_handler():
 ```
 
 Documentation for Quart-Login is available on [ReadTheDocs](https://flask-login.readthedocs.io/en/latest/).
-For complete understanding of available configuration, please refer to the [source code](https://github.com/0000matteo0000/quart-login).
+For complete understanding of available configuration, please refer to the [source code](https://github.com/luckydonald/quart-login).
 
 
 ## Contributing

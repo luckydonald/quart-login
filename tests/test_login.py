@@ -30,7 +30,6 @@ from quart_login import session_protected
 from quart_login import set_login_view
 from quart_login import user_accessed
 from quart_login import user_loaded_from_cookie
-from quart_login import user_loaded_from_header
 from quart_login import user_loaded_from_request
 from quart_login import user_logged_in
 from quart_login import user_logged_out

@@ -5,9 +5,9 @@
 #
 #    pip-compile-multi
 #
-aiofiles==0.8.0
+aiofiles==23.1.0
     # via quart
-blinker==1.4
+blinker==1.6.2
     # via quart
 click==7.1.2
     # via
@@ -16,7 +16,7 @@ click==7.1.2
     #   quart
 flask==1.0.4
     # via -r requirements/tests-min.in
-h11==0.13.0
+h11==0.14.0
     # via
     #   hypercorn
     #   wsproto
@@ -24,7 +24,7 @@ h2==4.1.0
     # via hypercorn
 hpack==4.0.0
     # via h2
-hypercorn==0.13.2
+hypercorn==0.14.3
     # via quart
 hyperframe==6.0.1
     # via h2
@@ -56,5 +56,5 @@ werkzeug==2.0.0
     #   -r requirements/tests-min.in
     #   flask
     #   quart
-wsproto==1.1.0
+wsproto==1.2.0
     # via hypercorn

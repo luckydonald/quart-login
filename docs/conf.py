@@ -42,7 +42,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "Quart-Login"
-copyright = "2022, Matteo Porta"
+copyright = "2023, Luckydonald"
 
 about = {}
 
@@ -104,7 +104,7 @@ html_theme = "flask_small"
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-html_theme_options = dict(github_fork="0000matteo0000/quart-login", index_logo=False)
+html_theme_options = dict(github_fork="luckydonald/quart-login", index_logo=False)
 
 # Add any paths that contain custom themes here, relative to this directory.
 html_theme_path = ["_themes"]
@@ -190,7 +190,7 @@ latex_documents = [
         "index",
         "Quart-Login.tex",
         "Quart-Login Documentation",
-        "Matteo Porta",
+        "Luckydonald",
         "manual",
     ),
 ]
@@ -224,7 +224,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ("index", "quart-login", "Quart-Login Documentation", ["Matteo Porta"], 1)
+    ("index", "quart-login", "Quart-Login Documentation", ["Luckydonald"], 1)
 ]
 
 
