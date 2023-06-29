@@ -272,7 +272,7 @@ def login_required(func):
     logged in, you can do so with::
 
         if not current_user.is_authenticated:
-            return current_app.login_manager.unauthorized()
+            return await current_app.login_manager.unauthorized()
 
     ...which is essentially the code that this function adds to your views.
 

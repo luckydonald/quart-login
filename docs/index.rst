@@ -205,7 +205,7 @@ If you would like to customize the process further, decorate a function with
 `LoginManager.unauthorized_handler`::
 
     @login_manager.unauthorized_handler
-    def unauthorized():
+    async def unauthorized():
         # do stuff
         return a_response
 
@@ -215,7 +215,7 @@ In your API (blueprint named as api) you don't wanna redirect to login page but 
     from quart import redirect, url_for, request
     from http import HTTPStatus
     @login_manager.unauthorized_handler
-    def unauthorized():
+    async def unauthorized():
         if request.blueprint == 'api':
             abort(HTTPStatus.UNAUTHORIZED)
         return redirect(url_for('site.login'))

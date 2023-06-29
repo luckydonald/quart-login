@@ -281,7 +281,7 @@ class LoginTestCase(unittest.IsolatedAsyncioTestCase):
 
         @self.app.route("/secret")
         async def secret():
-            return self.login_manager.unauthorized()
+            return await self.login_manager.unauthorized()
 
         @self.app.route("/login-notch")
         async def login_notch():
@@ -303,7 +303,7 @@ class LoginTestCase(unittest.IsolatedAsyncioTestCase):
 
         @self.app.route("/needs-refresh")
         async def needs_refresh():
-            return self.login_manager.needs_refresh()
+            return await self.login_manager.needs_refresh()
 
         @self.app.route("/confirm-login")
         async def _confirm_login():
@@ -1754,7 +1754,7 @@ class StrictHostForRedirectsTestCase(unittest.IsolatedAsyncioTestCase):
 
         @self.app.route("/secret")
         async def secret():
-            return self.login_manager.unauthorized()
+            return await self.login_manager.unauthorized()
 
         @self.app.route("/")
         async def index():

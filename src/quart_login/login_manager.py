@@ -125,7 +125,7 @@ class LoginManager:
         if add_context_processor:
             app.context_processor(_user_context_processor)
 
-    def unauthorized(self):
+    async def unauthorized(self):
         """
         This is called when the user is required to log in. If you register a
         callback with :meth:`LoginManager.unauthorized_handler`, then it will
@@ -167,12 +167,12 @@ class LoginManager:
 
         if self.login_message:
             if self.localize_callback is not None:
-                flash(
+                await flash(
                     self.localize_callback(self.login_message),
                     category=self.login_message_category,
                 )
             else:
-                flash(self.login_message, category=self.login_message_category)
+                await flash(self.login_message, category=self.login_message_category)
 
         config = current_app.config
         if config.get("USE_SESSION_FOR_NEXT", USE_SESSION_FOR_NEXT):
@@ -245,7 +245,7 @@ class LoginManager:
         self.needs_refresh_callback = callback
         return callback
 
-    def needs_refresh(self):
+    async def needs_refresh(self):
         """
         This is called when the user is logged in, but they need to be
         reauthenticated because their session is stale. If you register a
@@ -275,12 +275,12 @@ class LoginManager:
 
         if self.needs_refresh_message:
             if self.localize_callback is not None:
-                flash(
+                await flash(
                     self.localize_callback(self.needs_refresh_message),
                     category=self.needs_refresh_message_category,
                 )
             else:
-                flash(
+                await flash(
                     self.needs_refresh_message,
                     category=self.needs_refresh_message_category,
                 )
