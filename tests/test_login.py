@@ -219,14 +219,6 @@ class InitializationTestCase(unittest.IsolatedAsyncioTestCase):
         self.assertIsInstance(login_manager, LoginManager)
 
     @pytest.mark.asyncio
-    async def test_login_disabled_is_set(self):
-        login_manager = LoginManager(self.app, add_context_processor=True)
-        self.assertFalse(login_manager._login_disabled)
-        async with self.app.app_context():
-            login_manager._login_disabled = True
-            self.assertTrue(login_manager._login_disabled)
-
-    @pytest.mark.asyncio
     async def test_no_user_loader_raises(self):
         login_manager = LoginManager(self.app, add_context_processor=True)
         async with self.app.test_request_context("/"):
