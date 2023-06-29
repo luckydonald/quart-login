@@ -10,7 +10,6 @@ from quart import Quart
 from quart import get_flashed_messages
 from quart import Response
 from quart import session
-from quart.views import MethodView
 from quart_login import AnonymousUserMixin
 from quart_login import confirm_login
 from quart_login import current_user
@@ -161,7 +160,6 @@ def enable_debug(app):
     app.debug = True
     app.testing = True
     app.config["PROPAGATE_EXCEPTIONS"] = True
-    app.config["TRAP_HTTP_EXCEPTIONS"] = True
 
 
 class StaticTestCase(unittest.IsolatedAsyncioTestCase):
