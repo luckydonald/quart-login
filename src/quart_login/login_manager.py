@@ -30,8 +30,11 @@ from .signals import user_loaded_from_request
 from .signals import user_needs_refresh
 from .signals import user_unauthorized
 from .typing import LocalizeCallbackType
+from .typing import LocalizeCallbackTypeAsync
 from .typing import NeedsRefreshCallbackType
+from .typing import NeedsRefreshCallbackTypeAsync
 from .typing import UnauthorizedCallbackType
+from .typing import UnauthorizedCallbackTypeAsync
 from .typing import RequestCallbackType
 from .typing import RequestCallbackTypeAsync
 from .typing import SessionIdentifierGeneratorType
@@ -173,7 +176,8 @@ class LoginManager:
         user_unauthorized.send(current_app._get_current_object())
 
         if self.unauthorized_callback:
-            return self.unauthorized_callback()
+            async_unauthorized_callback: UnauthorizedCallbackTypeAsync = current_app.ensure_async(self.unauthorized_callback)
+            return await async_unauthorized_callback()
         context = get_context()
         if context.blueprint in self.blueprint_login_views:
             login_view = self.blueprint_login_views[context.blueprint]
@@ -185,8 +189,9 @@ class LoginManager:
 
         if self.login_message:
             if self.localize_callback is not None:
+                async_localize_callback: LocalizeCallbackTypeAsync = current_app.ensure_async(self.localize_callback)
                 await flash(
-                    self.localize_callback(self.login_message),
+                    await async_localize_callback(self.login_message),
                     category=self.login_message_category,
                 )
             else:
@@ -237,7 +242,7 @@ class LoginManager:
         """Gets the request_loader callback set by request_loader decorator."""
         return self._request_callback
 
-    def unauthorized_handler(self, callback):
+    def unauthorized_handler(self, callback: UnauthorizedCallbackType) -> UnauthorizedCallbackType:
         """
         This will set the callback for the `unauthorized` method, which among
         other things is used by `login_required`. It takes no arguments, and
@@ -250,7 +255,7 @@ class LoginManager:
         self.unauthorized_callback = callback
         return callback
 
-    def needs_refresh_handler(self, callback):
+    def needs_refresh_handler(self, callback: NeedsRefreshCallbackType) -> NeedsRefreshCallbackType:
         """
         This will set the callback for the `needs_refresh` method, which among
         other things is used by `fresh_login_required`. It takes no arguments,
@@ -286,15 +291,17 @@ class LoginManager:
         user_needs_refresh.send(current_app._get_current_object())
 
         if self.needs_refresh_callback:
-            return self.needs_refresh_callback()
+            async_needs_refresh_callback: NeedsRefreshCallbackTypeAsync = current_app.ensure_async(self.needs_refresh_callback)
+            return await async_needs_refresh_callback()
 
         if not self.refresh_view:
             abort(401)
 
         if self.needs_refresh_message:
             if self.localize_callback is not None:
+                async_localize_callback: LocalizeCallbackTypeAsync = current_app.ensure_async(self.localize_callback)
                 await flash(
-                    self.localize_callback(self.needs_refresh_message),
+                    await async_localize_callback(self.needs_refresh_message),
                     category=self.needs_refresh_message_category,
                 )
             else:

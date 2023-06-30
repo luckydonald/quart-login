@@ -9,6 +9,7 @@ from quart import Request, Websocket
 UserId = TypeVar('UserId')
 ResponseStuff = TypeVar('ResponseStuff')
 
+# noinspection DuplicatedCode
 Context = Union[Request, Websocket]
 
 UserCallbackTypeSync = Callable[[], UserId]
@@ -19,8 +20,17 @@ RequestCallbackTypeSync = Callable[[], Context]
 RequestCallbackTypeAsync = Callable[[], Awaitable[Context]]
 RequestCallbackType = Union[RequestCallbackTypeSync, RequestCallbackTypeAsync]
 
-LocalizeCallbackType = Callable[[str], str]
-UnauthorizedCallbackType = Callable[[], ResponseStuff]
-NeedsRefreshCallbackType = Callable[[], ResponseStuff]
+LocalizeCallbackTypeSync = Callable[[str], str]
+LocalizeCallbackTypeAsync = Callable[[str], Awaitable[str]]
+# noinspection DuplicatedCode
+LocalizeCallbackType = Union[LocalizeCallbackTypeSync, LocalizeCallbackTypeAsync]
+
+UnauthorizedCallbackTypeSync = Callable[[], ResponseStuff]
+UnauthorizedCallbackTypeAsync = Callable[[], Awaitable[ResponseStuff]]
+UnauthorizedCallbackType = Union[UnauthorizedCallbackTypeSync, UnauthorizedCallbackTypeAsync]
+
+NeedsRefreshCallbackTypeSync = Callable[[], ResponseStuff]
+NeedsRefreshCallbackTypeAsync = Callable[[], Awaitable[ResponseStuff]]
+NeedsRefreshCallbackType = Union[NeedsRefreshCallbackTypeSync, NeedsRefreshCallbackTypeAsync]
 
 SessionIdentifierGeneratorType = Callable[[], str]
