@@ -23,13 +23,14 @@ from .config import EXEMPT_METHODS
 from .signals import user_logged_in
 from .signals import user_logged_out
 from .signals import user_login_confirmed
+from .typing import Context
 
 #: A proxy for the current user. If no user is logged in, this will be an
 #: anonymous user
 current_user = LocalProxy(lambda: _sync_wrapped_get_user())
 
 
-def get_context():
+def get_context() -> Context:
     if has_request_context():
         return request
     elif has_websocket_context():
