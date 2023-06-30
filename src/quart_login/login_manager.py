@@ -314,7 +314,7 @@ class LoginManager:
 
         g._login_user = user
 
-    def _load_user(self):
+    async def _load_user(self):
         """Loads user from session or remember_me cookie as applicable"""
 
         if self._user_callback is None and self._request_callback is None:
@@ -335,7 +335,8 @@ class LoginManager:
         # Load user from Quart Session
         user_id = session.get("_user_id")
         if user_id is not None and self._user_callback is not None:
-            user = self._user_callback(user_id)
+            async_user_callback = current_app.ensure_async(self._user_callback)
+            user = await async_user_callback(user_id)
 
         # Load user from Remember Me Cookie or Request Loader
         if user is None:
@@ -349,9 +350,9 @@ class LoginManager:
             )
             if has_cookie:
                 cookie = context.cookies[cookie_name]
-                user = self._load_user_from_remember_cookie(cookie)
+                user = await self._load_user_from_remember_cookie(cookie)
             elif self._request_callback:
-                user = self._load_user_from_request(context)
+                user = await self._load_user_from_request(context)
 
         return self._update_request_context_with_user(user)
 
@@ -383,23 +384,25 @@ class LoginManager:
 
         return False
 
-    def _load_user_from_remember_cookie(self, cookie):
+    async def _load_user_from_remember_cookie(self, cookie):
         user_id = decode_cookie(cookie)
         if user_id is not None:
             session["_user_id"] = user_id
             session["_fresh"] = False
             user = None
             if self._user_callback:
-                user = self._user_callback(user_id)
+                async_user_callback = current_app.ensure_async(self._user_callback)
+                user = await async_user_callback(user_id)
             if user is not None:
                 app = current_app._get_current_object()
                 user_loaded_from_cookie.send(app, user=user)
                 return user
         return None
 
-    def _load_user_from_request(self, request):
+    async def _load_user_from_request(self, request):
         if self._request_callback:
-            user = self._request_callback(request)
+            async_request_callback = current_app.ensure_async(self._request_callback)
+            user = await async_request_callback(request)
             if user is not None:
                 app = current_app._get_current_object()
                 user_loaded_from_request.send(app, user=user)
