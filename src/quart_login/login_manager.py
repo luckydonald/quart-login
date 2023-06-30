@@ -153,9 +153,7 @@ class LoginManager:
 
         if self.unauthorized_callback:
             return self.unauthorized_callback()
-
         context = get_context()
-
         if context.blueprint in self.blueprint_login_views:
             login_view = self.blueprint_login_views[context.blueprint]
         else:
@@ -283,9 +281,7 @@ class LoginManager:
                     self.needs_refresh_message,
                     category=self.needs_refresh_message_category,
                 )
-
         context = get_context()
-
         config = current_app.config
         if config.get("USE_SESSION_FOR_NEXT", USE_SESSION_FOR_NEXT):
             login_url = expand_login_view(self.refresh_view)
@@ -341,9 +337,8 @@ class LoginManager:
         # Load user from Remember Me Cookie or Request Loader
         if user is None:
             config = current_app.config
-            cookie_name = config.get("REMEMBER_COOKIE_NAME", COOKIE_NAME)
-
             context = get_context()
+            cookie_name = config.get("REMEMBER_COOKIE_NAME", COOKIE_NAME)
 
             has_cookie = (
                 cookie_name in context.cookies and session.get("_remember") != "clear"
