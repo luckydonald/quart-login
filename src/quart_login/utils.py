@@ -1,7 +1,7 @@
 import hmac
 from functools import wraps
 from hashlib import sha512
-from typing import Optional, Any
+from typing import Optional, Any, Awaitable
 from urllib.parse import urlparse
 from urllib.parse import urlunparse
 from urllib.parse import parse_qs as url_decode
@@ -27,7 +27,7 @@ from .typing import Context
 
 #: A proxy for the current user. If no user is logged in, this will be an
 #: anonymous user
-current_user = LocalProxy(lambda: _sync_wrapped_get_user())
+current_user: Awaitable = LocalProxy(lambda: _get_user())
 
 
 def get_context() -> Context:
@@ -274,7 +274,7 @@ def login_required(func):
     If there are only certain times you need to require that your user is
     logged in, you can do so with::
 
-        if not current_user.is_authenticated:
+        if not (await current_user).is_authenticated:
             return await current_app.login_manager.unauthorized()
 
     ...which is essentially the code that this function adds to your views.
@@ -298,7 +298,7 @@ def login_required(func):
         context = get_context()
         if context.method in EXEMPT_METHODS or current_app.config.get("LOGIN_DISABLED"):
             pass
-        elif not current_user.is_authenticated:
+        elif not (await current_user).is_authenticated:
             return await current_app.ensure_async(current_app.login_manager.unauthorized)()
         return await current_app.ensure_async(func)(*args, **kwargs)
     return decorated_view
@@ -334,7 +334,7 @@ def fresh_login_required(func):
         context = get_context()
         if context.method in EXEMPT_METHODS or current_app.config.get("LOGIN_DISABLED"):
             pass
-        elif not current_user.is_authenticated:
+        elif not (await current_user).is_authenticated:
             return await current_app.ensure_async(current_app.login_manager.unauthorized)()
         elif not login_fresh():
             return await current_app.ensure_async(current_app.login_manager.needs_refresh)()
@@ -388,18 +388,6 @@ async def _get_user():
 
         return g._login_user
     return None
-
-
-def _sync_wrapped_get_user() -> Optional[Any]:
-    if not has_request_context():
-        return None
-    if "_login_user" in g:
-        return g._login_user
-    else:
-        asyncio.get_event_loop().run_until_complete(_get_user())
-        return g._login_user
-    # end if
-# end def
 
 
 def _cookie_digest(payload, key=None):

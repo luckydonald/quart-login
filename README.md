@@ -116,7 +116,7 @@ async def login():
 @app.route('/protected')
 @quart_login.login_required
 async def protected():
-    return 'Logged in as: ' + quart_login.current_user.id
+    return 'Logged in as: ' + (await quart_login.current_user).id
 ```
 
 Finally we can define a view to clear the session and log users out:

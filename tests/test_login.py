@@ -178,7 +178,7 @@ class StaticTestCase(unittest.IsolatedAsyncioTestCase):
 
         async with app.test_client() as c:
             async with app.test_request_context("/static/favicon.ico"):
-                self.assertTrue(current_user.is_anonymous)
+                self.assertTrue((await current_user).is_anonymous)
 
     @pytest.mark.asyncio
     async def test_static_loads_without_accessing_session(self):
@@ -312,8 +312,8 @@ class LoginTestCase(unittest.IsolatedAsyncioTestCase):
 
         @self.app.route("/username")
         async def username():
-            if current_user.is_authenticated:
-                return current_user.name
+            if (await current_user).is_authenticated:
+                return (await current_user).name
             return "Anonymous"
 
         @self.app.route("/is-fresh")
@@ -326,7 +326,7 @@ class LoginTestCase(unittest.IsolatedAsyncioTestCase):
 
         @self.app.route("/logout")
         async def logout():
-            return str(logout_user())
+            return str(await logout_user())
 
         @self.login_manager.user_loader
         def load_user(user_id):
@@ -370,7 +370,7 @@ class LoginTestCase(unittest.IsolatedAsyncioTestCase):
     @pytest.mark.asyncio
     async def test_test_request_context_users_are_anonymous(self):
         async with self.app.test_request_context("/"):
-            self.assertTrue(current_user.is_anonymous)
+            self.assertTrue((await current_user).is_anonymous)
 
     @pytest.mark.asyncio
     async def test_defaults_anonymous(self):
@@ -383,7 +383,7 @@ class LoginTestCase(unittest.IsolatedAsyncioTestCase):
         async with self.app.test_request_context("/"):
             result = await login_user(notch)
             self.assertTrue(result)
-            self.assertEqual(current_user.name, "Notch")
+            self.assertEqual((await current_user).name, "Notch")
             self.assertIs(login_fresh(), True)
 
     @pytest.mark.asyncio
@@ -391,7 +391,7 @@ class LoginTestCase(unittest.IsolatedAsyncioTestCase):
         async with self.app.test_request_context("/"):
             result = await login_user(notch, fresh=False)
             self.assertTrue(result)
-            self.assertEqual(current_user.name, "Notch")
+            self.assertEqual((await current_user).name, "Notch")
             self.assertIs(login_fresh(), False)
 
     @pytest.mark.asyncio
@@ -405,14 +405,14 @@ class LoginTestCase(unittest.IsolatedAsyncioTestCase):
     async def test_login_inactive_user(self):
         async with self.app.test_request_context("/"):
             result = await login_user(creeper)
-            self.assertTrue(current_user.is_anonymous)
+            self.assertTrue((await current_user).is_anonymous)
             self.assertFalse(result)
 
     @pytest.mark.asyncio
     async def test_login_inactive_user_forced(self):
         async with self.app.test_request_context("/"):
             await login_user(creeper, force=True)
-            self.assertEqual(current_user.name, "Creeper")
+            self.assertEqual((await current_user).name, "Creeper")
 
     @pytest.mark.asyncio
     async def test_login_user_with_request(self):
@@ -439,15 +439,15 @@ class LoginTestCase(unittest.IsolatedAsyncioTestCase):
     async def test_logout_logs_out_current_user(self):
         async with self.app.test_request_context("/"):
             await login_user(notch)
-            logout_user()
-            self.assertTrue(current_user.is_anonymous)
+            await logout_user()
+            self.assertTrue((await current_user).is_anonymous)
 
     @pytest.mark.asyncio
     async def test_logout_emits_signal(self):
         async with self.app.test_request_context("/"):
             await login_user(notch)
             with listen_to(user_logged_out) as listener:
-                logout_user()
+                await logout_user()
                 listener.assert_heard_one(self.app, user=notch)
 
     @pytest.mark.asyncio
@@ -456,7 +456,7 @@ class LoginTestCase(unittest.IsolatedAsyncioTestCase):
             await login_user(notch)
             del session["_user_id"]
             with listen_to(user_logged_out) as listener:
-                logout_user()
+                await logout_user()
                 listener.assert_heard_one(self.app, user=ANY)
 
     #
@@ -553,7 +553,7 @@ class LoginTestCase(unittest.IsolatedAsyncioTestCase):
 
         @self.app.route("/login")
         async def login():
-            if current_user.is_authenticated:
+            if (await current_user).is_authenticated:
                 # Or anything that touches current_user
                 pass
             return session.pop("next", "")
@@ -1390,13 +1390,13 @@ class LoginViaRequestTestCase(unittest.IsolatedAsyncioTestCase):
 
         @self.app.route("/username")
         async def username():
-            if current_user.is_authenticated:
-                return current_user.name
+            if (await current_user).is_authenticated:
+                return (await current_user).name
             return "Anonymous", 401
 
         @self.app.route("/logout")
         async def logout():
-            return str(logout_user())
+            return str(await logout_user())
 
         @self.login_manager.request_loader
         def load_user_from_request(request):
@@ -1424,7 +1424,7 @@ class LoginViaRequestTestCase(unittest.IsolatedAsyncioTestCase):
     @pytest.mark.asyncio
     async def test_request_context_users_are_anonymous(self):
         async with self.app.test_request_context("/"):
-            self.assertTrue(current_user.is_anonymous)
+            self.assertTrue((await current_user).is_anonymous)
 
     @pytest.mark.asyncio
     async def test_defaults_anonymous(self):
@@ -1690,14 +1690,14 @@ class UnicodeCookieUserIDTestCase(unittest.IsolatedAsyncioTestCase):
 
         @self.app.route("/username")
         async def username():
-            if current_user.is_authenticated:
-                return current_user.name
+            if (await current_user).is_authenticated:
+                return (await current_user).name
             return "Anonymous"
 
         @self.app.route("/userid")
         async def user_id():
-            if current_user.is_authenticated:
-                return current_user.id
+            if (await current_user).is_authenticated:
+                return (await current_user).id
             return "wrong_id"
 
         @self.login_manager.user_loader
@@ -1855,8 +1855,8 @@ class CustomTestClientTestCase(unittest.IsolatedAsyncioTestCase):
 
         @self.app.route("/username")
         async def username():
-            if current_user.is_authenticated:
-                return current_user.name
+            if (await current_user).is_authenticated:
+                return (await current_user).name
             return "Anonymous"
 
         @self.app.route("/is-fresh")
