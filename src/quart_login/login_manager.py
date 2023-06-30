@@ -6,10 +6,7 @@ from quart import current_app
 from quart import flash
 from quart import g
 from quart import redirect
-from quart import request
 from quart import session
-from quart import has_request_context
-from quart import has_websocket_context
 
 
 from .config import COOKIE_DURATION
