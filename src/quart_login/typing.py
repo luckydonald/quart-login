@@ -7,6 +7,7 @@ __author__ = 'luckydonald'
 from quart import Request, Websocket
 
 UserId = TypeVar('UserId')
+ResponseStuff = TypeVar('ResponseStuff')
 
 Context = Union[Request, Websocket]
 
@@ -17,3 +18,9 @@ UserCallbackType = Union[UserCallbackTypeSync, UserCallbackTypeAsync]
 RequestCallbackTypeSync = Callable[[], Context]
 RequestCallbackTypeAsync = Callable[[], Awaitable[Context]]
 RequestCallbackType = Union[RequestCallbackTypeSync, RequestCallbackTypeAsync]
+
+LocalizeCallbackType = Callable[[str], str]
+UnauthorizedCallbackType = Callable[[], ResponseStuff]
+NeedsRefreshCallbackType = Callable[[], ResponseStuff]
+
+SessionIdentifierGeneratorType = Callable[[], str]

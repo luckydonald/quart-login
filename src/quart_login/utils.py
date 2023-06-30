@@ -418,7 +418,7 @@ def _get_remote_addr():
     return address
 
 
-def _create_identifier():
+def _create_identifier() -> str:
     context = get_context()
     user_agent = context.headers.get("User-Agent")
     if user_agent is not None:

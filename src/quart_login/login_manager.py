@@ -1,6 +1,6 @@
 from datetime import datetime
 from datetime import timedelta
-from typing import Optional
+from typing import Optional, Type, Dict, Literal
 
 from quart import abort
 from quart import current_app
@@ -29,8 +29,14 @@ from .signals import user_loaded_from_cookie
 from .signals import user_loaded_from_request
 from .signals import user_needs_refresh
 from .signals import user_unauthorized
-from .typing import UserCallbackType, UserCallbackTypeAsync
-from .typing import RequestCallbackType, RequestCallbackTypeAsync
+from .typing import LocalizeCallbackType
+from .typing import NeedsRefreshCallbackType
+from .typing import UnauthorizedCallbackType
+from .typing import RequestCallbackType
+from .typing import RequestCallbackTypeAsync
+from .typing import SessionIdentifierGeneratorType
+from .typing import UserCallbackType
+from .typing import UserCallbackTypeAsync
 from .utils import get_context
 from .utils import _create_identifier
 from .utils import _user_context_processor
@@ -46,8 +52,22 @@ class LoginManager:
     create one in the main body of your code and then bind it to your
     app in a factory function.
     """
+    anonymous_user: Type[AnonymousUserMixin]
+    login_view = Optional[str]
+    blueprint_login_views: Dict
+    login_message: str
+    login_message_category: str
+    refresh_view = Optional[str]
+    needs_refresh_message: str
+    needs_refresh_message_category: str
+    session_protection: Literal['strong', 'basic', None]
+    localize_callback: Optional[LocalizeCallbackType]
+    unauthorized_callback: Optional[UnauthorizedCallbackType]
+    needs_refresh_callback: Optional[NeedsRefreshCallbackType]
+    id_attribute: str
     _user_callback: Optional[UserCallbackType]
     _request_callback: Optional[RequestCallbackType]
+    _session_identifier_generator: SessionIdentifierGeneratorType
 
     def __init__(self, app=None, add_context_processor=True):
         #: A class or factory function that produces an anonymous user, which
