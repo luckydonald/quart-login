@@ -137,6 +137,7 @@ def login_url(login_view, next_url=None, next_field="next"):
 
     parsed_result = urlparse(base)
     md = parse_qs(parsed_result.query)
+    md = {key: value[0] for key, value in md.items()}
     md[next_field] = make_next_param(base, next_url)
     md = {key: md[key] for key in sorted(md.keys())}
     netloc = current_app.config.get("FORCE_HOST_FOR_REDIRECTS") or parsed_result.netloc
