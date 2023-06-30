@@ -67,7 +67,7 @@ class User(quart_login.UserMixin):
 
 
 @login_manager.user_loader
-def user_loader(email):
+async def user_loader(email):
     if email not in users:
         return
 
@@ -77,8 +77,8 @@ def user_loader(email):
 
 
 @login_manager.request_loader
-def request_loader(request):
-    email = request.form.get('email')
+async def request_loader(request):
+    email = (await request.form).get('email')
     if email not in users:
         return
 
@@ -93,7 +93,7 @@ that requires authentication.
 
 ```python
 @app.route('/login', methods=['GET', 'POST'])
-def login():
+async def login():
     if quart.request.method == 'GET':
         return '''
                <form action='login' method='POST'>
@@ -103,8 +103,8 @@ def login():
                </form>
                '''
 
-    email = quart.request.form['email']
-    if email in users and quart.request.form['password'] == users[email]['password']:
+    email = (await quart.request.form)['email']
+    if email in users and (await quart.request.form)['password'] == users[email]['password']:
         user = User()
         user.id = email
         quart_login.login_user(user)
@@ -115,7 +115,7 @@ def login():
 
 @app.route('/protected')
 @quart_login.login_required
-def protected():
+async def protected():
     return 'Logged in as: ' + quart_login.current_user.id
 ```
 
