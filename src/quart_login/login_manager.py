@@ -1,5 +1,6 @@
 from datetime import datetime
 from datetime import timedelta
+from typing import Optional
 
 from quart import abort
 from quart import current_app
@@ -28,6 +29,8 @@ from .signals import user_loaded_from_cookie
 from .signals import user_loaded_from_request
 from .signals import user_needs_refresh
 from .signals import user_unauthorized
+from .typing import UserCallbackType, UserCallbackTypeAsync
+from .typing import RequestCallbackType, RequestCallbackTypeAsync
 from .utils import get_context
 from .utils import _create_identifier
 from .utils import _user_context_processor
@@ -37,13 +40,14 @@ from .utils import expand_login_view
 from .utils import login_url as make_login_url
 from .utils import make_next_param
 
-
 class LoginManager:
     """This object is used to hold the settings used for logging in. Instances
     of :class:`LoginManager` are *not* bound to specific apps, so you can
     create one in the main body of your code and then bind it to your
     app in a factory function.
     """
+    _user_callback: Optional[UserCallbackType]
+    _request_callback: Optional[RequestCallbackType]
 
     def __init__(self, app=None, add_context_processor=True):
         #: A class or factory function that produces an anonymous user, which
@@ -179,7 +183,7 @@ class LoginManager:
 
         return redirect(redirect_url)
 
-    def user_loader(self, callback):
+    def user_loader(self, callback: UserCallbackType) -> UserCallbackType:
         """
         This sets the callback for reloading a user from the session. The
         function you set should take a user ID (a ``str``) and return a
@@ -192,7 +196,7 @@ class LoginManager:
         return self.user_callback
 
     @property
-    def user_callback(self):
+    def user_callback(self) -> UserCallbackType:
         """Gets the user_loader callback set by user_loader decorator."""
         return self._user_callback
 
@@ -328,7 +332,7 @@ class LoginManager:
         # Load user from Quart Session
         user_id = session.get("_user_id")
         if user_id is not None and self._user_callback is not None:
-            async_user_callback = current_app.ensure_async(self._user_callback)
+            async_user_callback: UserCallbackTypeAsync = current_app.ensure_async(self._user_callback)
             user = await async_user_callback(user_id)
 
         # Load user from Remember Me Cookie or Request Loader
@@ -383,7 +387,7 @@ class LoginManager:
             session["_fresh"] = False
             user = None
             if self._user_callback:
-                async_user_callback = current_app.ensure_async(self._user_callback)
+                async_user_callback: UserCallbackTypeAsync = current_app.ensure_async(self._user_callback)
                 user = await async_user_callback(user_id)
             if user is not None:
                 app = current_app._get_current_object()
@@ -393,7 +397,7 @@ class LoginManager:
 
     async def _load_user_from_request(self, request):
         if self._request_callback:
-            async_request_callback = current_app.ensure_async(self._request_callback)
+            async_request_callback: RequestCallbackTypeAsync = current_app.ensure_async(self._request_callback)
             user = await async_request_callback(request)
             if user is not None:
                 app = current_app._get_current_object()
