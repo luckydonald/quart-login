@@ -421,8 +421,8 @@ def _create_identifier() -> str:
     return h.hexdigest()
 
 
-def _user_context_processor():
-    return dict(current_user=_get_user())  # yes, return the async function without calling.
+async def _user_context_processor():
+    return dict(current_user=await _get_user())
 
 
 def _secret_key(key=None):
