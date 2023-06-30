@@ -1363,7 +1363,7 @@ class LoginTestCase(unittest.IsolatedAsyncioTestCase):
     async def test_user_context_processor(self):
         async with self.app.test_request_context("/"):
             _ucp = self.app.context_processor(_user_context_processor)
-            self.assertIsInstance(_ucp()["current_user"], AnonymousUserMixin)
+            self.assertIsInstance(await (_ucp()["current_user"]), AnonymousUserMixin)
 
 
 class LoginViaRequestTestCase(unittest.IsolatedAsyncioTestCase):
