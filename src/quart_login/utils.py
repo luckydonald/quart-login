@@ -4,8 +4,8 @@ from hashlib import sha512
 from typing import Optional, Any, Awaitable
 from urllib.parse import urlparse
 from urllib.parse import urlunparse
-from urllib.parse import parse_qs as url_decode
-from urllib.parse import urlencode as url_encode
+from urllib.parse import parse_qs
+from urllib.parse import urlencode
 
 from quart import current_app
 from quart import g
@@ -136,12 +136,12 @@ def login_url(login_view, next_url=None, next_field="next"):
         return base
 
     parsed_result = urlparse(base)
-    md = url_decode(parsed_result.query)
+    md = parse_qs(parsed_result.query)
     md[next_field] = make_next_param(base, next_url)
     md = {key: md[key] for key in sorted(md.keys())}
     netloc = current_app.config.get("FORCE_HOST_FOR_REDIRECTS") or parsed_result.netloc
     parsed_result = parsed_result._replace(
-        netloc=netloc, query=url_encode(md)
+        netloc=netloc, query=urlencode(md)
     )
     return urlunparse(parsed_result)
 
