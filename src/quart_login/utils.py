@@ -78,7 +78,7 @@ def decode_cookie(cookie, key=None):
 
 def make_next_param(login_url, current_url):
     """
-    Reduces the scheme and host from a given URL so it can be passed to
+    Reduces the scheme and host from a given URL, so it can be passed to
     the given `login` URL more efficiently.
 
     :param login_url: The login URL being redirected to.
@@ -98,7 +98,7 @@ def make_next_param(login_url, current_url):
 
 def expand_login_view(login_view):
     """
-    Returns the url for the login view, expanding the view name to a url if
+    Returns the url for the login view, expanding the view name to an url if
     needed.
 
     :param login_view: The name of the login view or a URL for the login view.
