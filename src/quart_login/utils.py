@@ -4,6 +4,8 @@ from hashlib import sha512
 from typing import Optional, Any
 from urllib.parse import urlparse
 from urllib.parse import urlunparse
+from urllib.parse import parse_qs as url_decode
+from urllib.parse import urlencode as url_encode
 
 from quart import current_app
 from quart import g
@@ -14,8 +16,6 @@ from quart import url_for
 from quart import has_websocket_context
 from quart import websocket
 from werkzeug.local import LocalProxy
-from werkzeug.urls import url_decode
-from werkzeug.urls import url_encode
 import asyncio
 
 from .config import COOKIE_NAME
