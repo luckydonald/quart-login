@@ -68,7 +68,7 @@ def listen_to(signal):
     Example:
 
     with listen_to(user_logged_in) as listener:
-        login_user(user)
+        await login_user(user)
 
         # Assert that a single emittance of the specific args was seen.
         listener.assert_heard_one(app, user=user))
@@ -224,7 +224,7 @@ class InitializationTestCase(unittest.IsolatedAsyncioTestCase):
         async with self.app.test_request_context("/"):
             session["_user_id"] = "2"
             with self.assertRaises(Exception) as cm:
-                login_manager._load_user()
+                await login_manager._load_user()
             expected_message = "Missing user_loader or request_loader"
             self.assertTrue(str(cm.exception).startswith(expected_message))
 
@@ -285,21 +285,21 @@ class LoginTestCase(unittest.IsolatedAsyncioTestCase):
 
         @self.app.route("/login-notch")
         async def login_notch():
-            return str(login_user(notch))
+            return str(await login_user(notch))
 
         @self.app.route("/login-notch-remember")
         async def login_notch_remember():
-            return str(login_user(notch, remember=True))
+            return str(await login_user(notch, remember=True))
 
         @self.app.route("/login-notch-remember-custom")
         async def login_notch_remember_custom():
             duration = timedelta(hours=7)
-            return str(login_user(notch, remember=True, duration=duration))
+            return str(await login_user(notch, remember=True, duration=duration))
 
         @self.app.route("/login-notch-permanent")
         async def login_notch_permanent():
             session.permanent = True
-            return str(login_user(notch))
+            return str(await login_user(notch))
 
         @self.app.route("/needs-refresh")
         async def needs_refresh():
@@ -381,7 +381,7 @@ class LoginTestCase(unittest.IsolatedAsyncioTestCase):
     @pytest.mark.asyncio
     async def test_login_user(self):
         async with self.app.test_request_context("/"):
-            result = login_user(notch)
+            result = await login_user(notch)
             self.assertTrue(result)
             self.assertEqual(current_user.name, "Notch")
             self.assertIs(login_fresh(), True)
@@ -389,7 +389,7 @@ class LoginTestCase(unittest.IsolatedAsyncioTestCase):
     @pytest.mark.asyncio
     async def test_login_user_not_fresh(self):
         async with self.app.test_request_context("/"):
-            result = login_user(notch, fresh=False)
+            result = await login_user(notch, fresh=False)
             self.assertTrue(result)
             self.assertEqual(current_user.name, "Notch")
             self.assertIs(login_fresh(), False)
@@ -398,20 +398,20 @@ class LoginTestCase(unittest.IsolatedAsyncioTestCase):
     async def test_login_user_emits_signal(self):
         async with self.app.test_request_context("/"):
             with listen_to(user_logged_in) as listener:
-                login_user(notch)
+                await login_user(notch)
                 listener.assert_heard_one(self.app, user=notch)
 
     @pytest.mark.asyncio
     async def test_login_inactive_user(self):
         async with self.app.test_request_context("/"):
-            result = login_user(creeper)
+            result = await login_user(creeper)
             self.assertTrue(current_user.is_anonymous)
             self.assertFalse(result)
 
     @pytest.mark.asyncio
     async def test_login_inactive_user_forced(self):
         async with self.app.test_request_context("/"):
-            login_user(creeper, force=True)
+            await login_user(creeper, force=True)
             self.assertEqual(current_user.name, "Creeper")
 
     @pytest.mark.asyncio
@@ -438,14 +438,14 @@ class LoginTestCase(unittest.IsolatedAsyncioTestCase):
     @pytest.mark.asyncio
     async def test_logout_logs_out_current_user(self):
         async with self.app.test_request_context("/"):
-            login_user(notch)
+            await login_user(notch)
             logout_user()
             self.assertTrue(current_user.is_anonymous)
 
     @pytest.mark.asyncio
     async def test_logout_emits_signal(self):
         async with self.app.test_request_context("/"):
-            login_user(notch)
+            await login_user(notch)
             with listen_to(user_logged_out) as listener:
                 logout_user()
                 listener.assert_heard_one(self.app, user=notch)
@@ -453,7 +453,7 @@ class LoginTestCase(unittest.IsolatedAsyncioTestCase):
     @pytest.mark.asyncio
     async def test_logout_without_current_user(self):
         async with self.app.test_request_context("/"):
-            login_user(notch)
+            await login_user(notch)
             del session["_user_id"]
             with listen_to(user_logged_out) as listener:
                 logout_user()
@@ -815,7 +815,7 @@ class LoginTestCase(unittest.IsolatedAsyncioTestCase):
         @self.app.route("/login-notch-remember-custom-invalid")
         async def login_notch_remember_custom_invalid():
             duration = "123"
-            return str(login_user(notch, remember=True, duration=duration))
+            return str(await login_user(notch, remember=True, duration=duration))
 
         async with self.app.test_client() as c:
             result = await c.get("/login-notch-remember-custom-invalid")
@@ -839,7 +839,7 @@ class LoginTestCase(unittest.IsolatedAsyncioTestCase):
     async def test_set_cookie_with_invalid_custom_duration_raises_exception(self):
         with self.assertRaises(Exception) as cm:
             async with self.app.test_request_context("/"):
-                login_user(notch, remember=True, duration="123")
+                await login_user(notch, remember=True, duration="123")
 
         expected_exception_message = (
             "duration must be a datetime.timedelta, instead got: 123"
@@ -1386,7 +1386,7 @@ class LoginViaRequestTestCase(unittest.IsolatedAsyncioTestCase):
 
         @self.app.route("/login-notch")
         async def login_notch():
-            return str(login_user(notch))
+            return str(await login_user(notch))
 
         @self.app.route("/username")
         async def username():
@@ -1686,7 +1686,7 @@ class UnicodeCookieUserIDTestCase(unittest.IsolatedAsyncioTestCase):
 
         @self.app.route("/login-germanjapanese-remember")
         async def login_germanjapanese_remember():
-            return str(login_user(germanjapanese, remember=True))
+            return str(await login_user(germanjapanese, remember=True))
 
         @self.app.route("/username")
         async def username():

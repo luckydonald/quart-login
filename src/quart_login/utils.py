@@ -1,6 +1,7 @@
 import hmac
 from functools import wraps
 from hashlib import sha512
+from typing import Optional, Any
 from urllib.parse import urlparse
 from urllib.parse import urlunparse
 
@@ -15,6 +16,7 @@ from quart import websocket
 from werkzeug.local import LocalProxy
 from werkzeug.urls import url_decode
 from werkzeug.urls import url_encode
+import asyncio
 
 from .config import COOKIE_NAME
 from .config import EXEMPT_METHODS
@@ -24,7 +26,7 @@ from .signals import user_login_confirmed
 
 #: A proxy for the current user. If no user is logged in, this will be an
 #: anonymous user
-current_user = LocalProxy(lambda: _get_user())
+current_user = LocalProxy(lambda: _sync_wrapped_get_user())
 
 
 def get_context():
@@ -164,7 +166,7 @@ def login_remembered():
     return False
 
 
-def login_user(user, remember=False, duration=None, force=False, fresh=True):
+async def login_user(user, remember=False, duration=None, force=False, fresh=True):
     """
     Logs a user in. You should pass the actual user object to this. If the
     user's `is_active` property is ``False``, they will not be logged in
@@ -211,17 +213,17 @@ def login_user(user, remember=False, duration=None, force=False, fresh=True):
                 ) from e
 
     current_app.login_manager._update_request_context_with_user(user)
-    user_logged_in.send(current_app._get_current_object(), user=_get_user())
+    user_logged_in.send(current_app._get_current_object(), user=await _get_user())
     return True
 
 
-def logout_user():
+async def logout_user():
     """
     Logs a user out. (You do not need to pass the actual user.) This will
     also clean up the remember me cookie if it exists.
     """
 
-    user = _get_user()
+    user = await _get_user()
 
     if "_user_id" in session:
         session.pop("_user_id")
@@ -370,7 +372,7 @@ def set_login_view(login_view, blueprint=None):
         current_app.login_manager.login_view = login_view
 
 
-def _get_user():
+async def _get_user():
     # TODO: investigate if we should store it on the request stack,
     #       the original flask-to-quart rewrite suggested that.
     #       The rewrite then checked based on  `has_request_context()` and `has_websocket_context()`,
@@ -381,11 +383,22 @@ def _get_user():
     #       which is what we're now using below, hoping that it will work with websockets as well.
     if has_request_context():
         if "_login_user" not in g:
-            current_app.login_manager._load_user()
+            await current_app.login_manager._load_user()
 
         return g._login_user
-
     return None
+
+
+def _sync_wrapped_get_user() -> Optional[Any]:
+    if not has_request_context():
+        return None
+    if "_login_user" in g:
+        return g._login_user
+    else:
+        asyncio.get_event_loop().run_until_complete(_get_user())
+        return g._login_user
+    # end if
+# end def
 
 
 def _cookie_digest(payload, key=None):
@@ -418,7 +431,7 @@ def _create_identifier():
 
 
 def _user_context_processor():
-    return dict(current_user=_get_user())
+    return dict(current_user=_get_user())  # yes, return the async function without calling.
 
 
 def _secret_key(key=None):

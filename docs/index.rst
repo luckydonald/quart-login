@@ -168,8 +168,8 @@ When the user is ready to log out::
 
     @app.route("/logout")
     @login_required
-    def logout():
-        logout_user()
+    async def logout():
+        await logout_user()
         return redirect(somewhere)
 
 They will be logged out, and any cookies for their session will be cleaned up.

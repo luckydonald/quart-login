@@ -123,8 +123,8 @@ Finally we can define a view to clear the session and log users out:
 
 ```python
 @app.route('/logout')
-def logout():
-    quart_login.logout_user()
+async def logout():
+    await quart_login.logout_user()
     return 'Logged out'
 ```
 
